@@ -23,7 +23,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class JwtAuthFilter extends OncePerRequestFilter {
 
-    private final static String BEARER_TOKEN_PREFIX = "Bearer ";
+    private static final String BEARER_TOKEN_PREFIX = "Bearer ";
 
     private final JwtService jwtService;
     private final UserInfoService userInfoService;
@@ -36,27 +36,25 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         var token = Optional.ofNullable(authHeader)
                 .filter(header -> header.startsWith(BEARER_TOKEN_PREFIX))
                 .map(header -> header.substring(BEARER_TOKEN_PREFIX.length()));
-        var username = Optional.<String>empty();
         try {
-            username = token.map(jwtService::extractUsername);
-        } catch (Exception exception) {
-            // Exception while parsing the token.
-            // Some of the reasons might be token expiry or invalid token (invalid signature).
-            // We do not authenticate the user in this case.
-            logger.warn("Failed to extract username from token", exception);
-        }
-
-        if (username.isPresent() && Objects.isNull(SecurityContextHolder.getContext().getAuthentication())) {
-            var userDetails = userInfoService.loadUserByUsername(username.get());
-            if (jwtService.validateToken(token.get(), userDetails)) {
-                var authToken = new UsernamePasswordAuthenticationToken(
-                        userDetails,
-                        null,
-                        userDetails.getAuthorities()
-                );
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authToken);
+            var username = token.map(jwtService::extractUsername);
+            if (username.isPresent() && Objects.isNull(SecurityContextHolder.getContext().getAuthentication())) {
+                var userDetails = userInfoService.loadUserByUsername(username.get());
+                if (jwtService.validateToken(token.get(), userDetails)) {
+                    var authToken = new UsernamePasswordAuthenticationToken(
+                            userDetails,
+                            null,
+                            userDetails.getAuthorities()
+                    );
+                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                }
             }
+        } catch (Exception exception) {
+            // Exception while parsing the token or loading user.
+            // One of the reasons might be invalidity of token (invalid signature).
+            // We do not authenticate the user in this case.
+            logger.warn("Error while trying to retrieve user from token", exception);
         }
 
         filterChain.doFilter(request, response);
