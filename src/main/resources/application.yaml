@@ -1,0 +1,30 @@
+spring:
+  application:
+    name: bookstore
+  datasource:
+    url: jdbc:h2:file:./target/h2db/db/bookstore
+    driver-class-name: org.h2.Driver
+    # These credentials are hardcoded this time for ease of use.
+    # In a production scenario we would have them encrypted or fetched from a configuration server/cloud secret manager.
+    username: bookstore_db_username
+    password: bookstore_db_password
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+  jpa:
+    show-sql: true
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        format_sql: true
+  liquibase:
+    enabled: true
+    change-log: classpath:/liquibase/master.yaml
+
+authentication:
+  # Configuration for the JWT secret key used when signing tokens.
+  # This is for demo purposes only -- in a real scenario  we would have this encrypted or fetched from a configuration server/cloud secret manager.
+  secret-key: 5367566B59703373367639792F423F4528482B4D6251655468576D5A71347437
