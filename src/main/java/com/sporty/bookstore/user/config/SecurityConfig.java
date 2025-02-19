@@ -1,6 +1,6 @@
 package com.sporty.bookstore.user.config;
 
-import com.sporty.bookstore.configuration.ApiConstants;
+import com.sporty.bookstore.config.ApiConstants;
 import com.sporty.bookstore.user.filter.JwtAuthFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;

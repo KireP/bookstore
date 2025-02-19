@@ -1,0 +1,67 @@
+databaseChangeLog:
+  - changeSet:
+      id: create_books_table
+      author: Kiril Pepovski
+      changes:
+        - createTable:
+            tableName: books
+            columns:
+              - column:
+                  name: id
+                  type: numeric
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: type
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: creation_date
+                  type: timestamp
+                  constraints:
+                    nullable: false
+              - column:
+                  name: title
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: author
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: price
+                  type: double
+                  constraints:
+                    nullable: false
+        - createSequence:
+            sequenceName: books_sequence
+            startValue: 4
+            incrementBy: 1
+            ifNotExists: true
+        - createIndex:
+            tableName: books
+            indexName: idx_book_creation_date
+            columns:
+              - column:
+                  name: creation_date
+        - createIndex:
+            tableName: books
+            indexName: idx_book_title
+            columns:
+              - column:
+                  name: title
+        - createIndex:
+            tableName: books
+            indexName: idx_book_author
+            columns:
+              - column:
+                  name: author
+        - createIndex:
+            tableName: books
+            indexName: idx_book_price
+            columns:
+              - column:
+                  name: price

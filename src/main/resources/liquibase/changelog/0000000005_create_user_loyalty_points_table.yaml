@@ -1,10 +1,10 @@
 databaseChangeLog:
   - changeSet:
-      id: create_users_table
+      id: create_user_loyalty_points_table
       author: Kiril Pepovski
       changes:
         - createTable:
-            tableName: users
+            tableName: user_loyalty_points
             columns:
               - column:
                   name: id
@@ -12,29 +12,25 @@ databaseChangeLog:
                   constraints:
                     primaryKey: true
               - column:
-                  name: username
-                  type: varchar(50)
+                  name: user_id
+                  type: numeric
                   constraints:
                     nullable: false
-                    unique: true
+                    foreignKeyName: fk_user_loyalty_points_user
+                    references: users(id)
               - column:
-                  name: password
-                  type: varchar(150)
-                  constraints:
-                    nullable: false
-              - column:
-                  name: roles
-                  type: varchar(150)
+                  name: loyalty_points
+                  type: int
                   constraints:
                     nullable: false
         - createSequence:
-            sequenceName: users_sequence
-            startValue: 4
+            sequenceName: user_loyalty_points_sequence
+            startValue: 1
             incrementBy: 1
             ifNotExists: true
         - createIndex:
-            tableName: users
-            indexName: idx_user_username
+            tableName: user_loyalty_points
+            indexName: idx_user_loyalty_points_user
             columns:
               - column:
-                  name: username
+                  name: user_id

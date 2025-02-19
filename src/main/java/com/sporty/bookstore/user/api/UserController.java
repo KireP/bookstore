@@ -1,9 +1,10 @@
 package com.sporty.bookstore.user.api;
 
-import com.sporty.bookstore.configuration.ApiConstants;
+import com.sporty.bookstore.config.ApiConstants;
 import com.sporty.bookstore.user.dto.request.NewUserRequestDto;
 import com.sporty.bookstore.user.dto.response.UserInfoResponseDto;
 import com.sporty.bookstore.user.service.UserInfoService;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -25,12 +26,14 @@ public class UserController {
 
     @GetMapping(ApiConstants.PERSONAL_PROFILE_API_URI)
     @PreAuthorize(ApiConstants.ADMIN_OR_USER_PRE_AUTHORIZATION)
+    @Operation(summary = "[ROLE_ADMIN, ROLE_USER] Retrieves the logged-in user's profile.")
     public UserInfoResponseDto getMyProfile() {
         return userInfoService.loadUserFromSecurityContext();
     }
 
     @GetMapping("/{userId}")
     @PreAuthorize(ApiConstants.ADMIN_PRE_AUTHORIZATION)
+    @Operation(summary = "[ROLE_ADMIN] Retrieves any user's profile.")
     public UserInfoResponseDto getProfile(@PathVariable("userId") BigInteger userId) {
         return userInfoService.loadUserById(userId);
     }
@@ -38,6 +41,7 @@ public class UserController {
     @PostMapping
     @PreAuthorize(ApiConstants.ADMIN_PRE_AUTHORIZATION)
     @ResponseStatus(HttpStatus.CREATED)
+    @Operation(summary = "[ROLE_ADMIN] Creates a user.")
     public UserInfoResponseDto createNewUser(@RequestBody @Valid NewUserRequestDto request) {
         return userInfoService.createNewUser(request);
     }

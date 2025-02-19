@@ -1,0 +1,34 @@
+databaseChangeLog:
+  - changeSet:
+      id: load_books
+      author: Kiril Pepovski
+      runOnChange: true
+      changes:
+        - loadUpdateData:
+            columns:
+              - column:
+                  name: id
+                  type: numeric
+              - column:
+                  name: type
+                  type: varchar(50)
+              - column:
+                  name: creation_date
+                  type: varchar(50)
+              - column:
+                  name: title
+                  type: varchar(50)
+              - column:
+                  name: author
+                  type: varchar(50)
+              - column:
+                  name: price
+                  type: double
+            commentLineStartsWith: //
+            encoding: UTF-8
+            file: data/00002_books.txt
+            primaryKey: id
+            relativeToChangelogFile: true
+            separator: ;
+            tableName: books
+            usePreparedStatements: true

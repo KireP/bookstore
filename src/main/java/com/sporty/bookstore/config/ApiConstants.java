@@ -1,4 +1,4 @@
-package com.sporty.bookstore.configuration;
+package com.sporty.bookstore.config;
 
 import com.sporty.bookstore.user.config.SecurityConfig;
 
@@ -17,4 +17,5 @@ public final class ApiConstants {
     public static final String BASE_API_URI = "/api/v1";
     public static final String USERS_API_URI = BASE_API_URI + "/users";
     public static final String PERSONAL_PROFILE_API_URI = "/me";
+    public static final String BOOKS_API_URI = BASE_API_URI + "/books";
 }

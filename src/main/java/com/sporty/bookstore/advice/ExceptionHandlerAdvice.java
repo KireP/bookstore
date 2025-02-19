@@ -1,7 +1,10 @@
 package com.sporty.bookstore.advice;
 
+import com.sporty.bookstore.exception.BookCannotBeDeletedException;
+import com.sporty.bookstore.exception.BookNotFoundException;
 import com.sporty.bookstore.exception.UserIdNotFoundException;
 import com.sporty.bookstore.exception.UsernameAlreadyExistsException;
+import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -14,20 +17,22 @@ import java.util.Map;
 public class ExceptionHandlerAdvice {
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public Map<String, String> handleMethodArgumentNotValidException(MethodArgumentNotValidException exception) {
-        return getErrorMessage(exception);
-    }
-
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(UsernameAlreadyExistsException.class)
-    public Map<String, String> handleUsernameAlreadyExistsException(UsernameAlreadyExistsException exception) {
+    @ExceptionHandler(exception = {
+            MethodArgumentNotValidException.class,
+            ConstraintViolationException.class,
+            UsernameAlreadyExistsException.class,
+            BookCannotBeDeletedException.class
+    })
+    public Map<String, String> handleBadRequestExceptions(Exception exception) {
         return getErrorMessage(exception);
     }
 
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    @ExceptionHandler(UserIdNotFoundException.class)
-    public Map<String, String> handleUserIdNotFoundException(UserIdNotFoundException exception) {
+    @ExceptionHandler(exception = {
+            UserIdNotFoundException.class,
+            BookNotFoundException.class
+    })
+    public Map<String, String> handleNotFoundExceptions(Exception exception) {
         return getErrorMessage(exception);
     }
 

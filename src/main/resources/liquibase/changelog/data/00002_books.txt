@@ -1,0 +1,4 @@
+id;type;creation_date;title;author;price
+1;NEW_RELEASE;2025-02-01 11:00:00;Dune;Frank Herbert;80
+2;REGULAR;2025-01-01 11:00:00;A Song of Ice and Fire;George R.R. Martin;60
+3;OLD_EDITION;2024-01-01 11:00:00;Harry Potter;J.K. Rowling;40

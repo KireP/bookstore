@@ -3,3 +3,9 @@ databaseChangeLog:
       file: liquibase/changelog/0000000001_create_users_table.yaml
   - include:
       file: liquibase/changelog/0000000002_load_users.yaml
+  - include:
+      file: liquibase/changelog/0000000003_create_books_table.yaml
+  - include:
+      file: liquibase/changelog/0000000004_load_books.yaml
+  - include:
+      file: liquibase/changelog/0000000005_create_user_loyalty_points_table.yaml

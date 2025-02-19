@@ -4,6 +4,7 @@ import com.sporty.bookstore.exception.UserIdNotFoundException;
 import com.sporty.bookstore.exception.UsernameAlreadyExistsException;
 import com.sporty.bookstore.user.dto.request.NewUserRequestDto;
 import com.sporty.bookstore.user.dto.response.UserInfoResponseDto;
+import com.sporty.bookstore.user.entity.UserInfo;
 import com.sporty.bookstore.user.mapper.UserMapper;
 import com.sporty.bookstore.user.repository.UserInfoRepository;
 import lombok.RequiredArgsConstructor;
@@ -35,12 +36,15 @@ public class UserInfoService implements UserDetailsService {
     }
 
     public UserInfoResponseDto loadUserFromSecurityContext() {
+        return userMapper.toUserInfoResponseDto(loadUserInfoEntityFromSecurityContext());
+    }
+    
+    public UserInfo loadUserInfoEntityFromSecurityContext() {
         return Optional.ofNullable(SecurityContextHolder.getContext().getAuthentication())
                 .map(Authentication::getPrincipal)
                 .filter(UserInfoDetails.class::isInstance)
                 .map(UserInfoDetails.class::cast)
                 .flatMap(userInfoDetails -> userInfoRepository.findByUsername(userInfoDetails.getUsername()))
-                .map(userMapper::toUserInfoResponseDto)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found in security context"));
     }
 
