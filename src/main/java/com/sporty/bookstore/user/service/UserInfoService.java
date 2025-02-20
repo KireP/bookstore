@@ -38,7 +38,7 @@ public class UserInfoService implements UserDetailsService {
     public UserInfoResponseDto loadUserFromSecurityContext() {
         return userMapper.toUserInfoResponseDto(loadUserInfoEntityFromSecurityContext());
     }
-    
+
     public UserInfo loadUserInfoEntityFromSecurityContext() {
         return Optional.ofNullable(SecurityContextHolder.getContext().getAuthentication())
                 .map(Authentication::getPrincipal)
@@ -49,8 +49,11 @@ public class UserInfoService implements UserDetailsService {
     }
 
     public UserInfoResponseDto loadUserById(BigInteger id) {
+        return userMapper.toUserInfoResponseDto(loadUserInfoEntityById(id));
+    }
+
+    public UserInfo loadUserInfoEntityById(BigInteger id) {
         return userInfoRepository.findById(id)
-                .map(userMapper::toUserInfoResponseDto)
                 .orElseThrow(() -> new UserIdNotFoundException(id));
     }
 

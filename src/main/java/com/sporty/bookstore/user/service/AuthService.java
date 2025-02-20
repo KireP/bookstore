@@ -25,9 +25,7 @@ public class AuthService {
                     .stream()
                     .map(GrantedAuthority::getAuthority)
                     .toList();
-            return TokenResponseDto.builder()
-                    .token(jwtService.generateToken(authRequest.getUsername(), authorities))
-                    .build();
+            return new TokenResponseDto(jwtService.generateToken(authRequest.getUsername(), authorities));
         } else {
             throw new UsernameNotFoundException("Invalid user request");
         }

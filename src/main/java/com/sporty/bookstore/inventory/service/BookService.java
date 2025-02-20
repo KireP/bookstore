@@ -19,6 +19,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigInteger;
+import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -54,6 +56,10 @@ public class BookService {
                         PageRequest.of(page, size, Sort.by(sortingDirection, sortingColumn))
                 )
                 .map(bookMapper::toBookResponseDto);
+    }
+
+    public List<Book> getBooksByIds(Collection<BigInteger> ids) {
+        return bookRepository.findAllById(ids);
     }
 
     public BookResponseDto getBook(BigInteger id) {

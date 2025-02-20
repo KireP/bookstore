@@ -1,6 +1,5 @@
 package com.sporty.bookstore.purchase.entity;
 
-
 import com.sporty.bookstore.user.entity.UserInfo;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -24,7 +23,7 @@ public class UserLoyaltyPoints {
     @Column(name = "id")
     private BigInteger id;
 
-    @ManyToOne
+    @OneToOne
     @JoinColumn(name = "user_id")
     private UserInfo userInfo;
 

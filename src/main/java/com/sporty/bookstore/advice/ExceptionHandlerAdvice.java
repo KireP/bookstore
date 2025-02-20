@@ -1,9 +1,6 @@
 package com.sporty.bookstore.advice;
 
-import com.sporty.bookstore.exception.BookCannotBeDeletedException;
-import com.sporty.bookstore.exception.BookNotFoundException;
-import com.sporty.bookstore.exception.UserIdNotFoundException;
-import com.sporty.bookstore.exception.UsernameAlreadyExistsException;
+import com.sporty.bookstore.exception.*;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -30,7 +27,8 @@ public class ExceptionHandlerAdvice {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler(exception = {
             UserIdNotFoundException.class,
-            BookNotFoundException.class
+            BookNotFoundException.class,
+            BooksCannotBeOrderedException.class
     })
     public Map<String, String> handleNotFoundExceptions(Exception exception) {
         return getErrorMessage(exception);

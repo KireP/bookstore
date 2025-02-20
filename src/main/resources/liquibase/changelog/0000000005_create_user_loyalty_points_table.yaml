@@ -16,6 +16,7 @@ databaseChangeLog:
                   type: numeric
                   constraints:
                     nullable: false
+                    unique: true
                     foreignKeyName: fk_user_loyalty_points_user
                     references: users(id)
               - column:

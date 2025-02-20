@@ -1,6 +1,6 @@
 package com.sporty.bookstore.inventory.dto.request;
 
-import com.sporty.bookstore.inventory.dto.annotation.AnyFieldSet;
+import com.sporty.bookstore.inventory.dto.annotation.validation.AnyFieldSet;
 import com.sporty.bookstore.inventory.enumeration.BookType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

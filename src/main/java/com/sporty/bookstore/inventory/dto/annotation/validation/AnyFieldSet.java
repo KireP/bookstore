@@ -1,4 +1,4 @@
-package com.sporty.bookstore.inventory.dto.annotation;
+package com.sporty.bookstore.inventory.dto.annotation.validation;
 
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;

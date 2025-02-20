@@ -28,3 +28,6 @@ authentication:
   # Configuration for the JWT secret key used when signing tokens.
   # In a production scenario we would have this encrypted or fetched from a configuration server/cloud secret manager.
   secret-key: 5367566B59703373367639792F423F4528482B4D6251655468576D5A71347437
+
+loyalty-points:
+  max: 10
