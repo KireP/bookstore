@@ -10,7 +10,7 @@ import com.sporty.bookstore.purchase.dto.response.BookOrderDetailsResponseDto;
 import com.sporty.bookstore.purchase.dto.response.DeductedBookResponseDto;
 import com.sporty.bookstore.purchase.dto.response.OrderPaymentResponseDto;
 import com.sporty.bookstore.purchase.dto.response.OrderPriceCalculationResponseDto;
-import com.sporty.bookstore.purchase.service.processor.DiscountProcessor;
+import com.sporty.bookstore.purchase.service.processor.DiscountProcessorFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class OrderService {
 
-    private final List<DiscountProcessor> discountProcessors;
+    private final DiscountProcessorFactory discountProcessorFactory;
     private final BookService bookService;
     private final LoyaltyPointsService loyaltyPointsService;
 
@@ -98,13 +98,10 @@ public class OrderService {
                 .stream()
                 .collect(Collectors.toMap(
                         Book::getId,
-                        book -> discountProcessors.stream()
-                                .mapToDouble(discountProcessor -> discountProcessor.getPrice(
-                                        book.getPrice(),
-                                        book.getType(),
-                                        numberOfBooksInOrder
-                                ))
-                                .sum()
+                        book -> discountProcessorFactory
+                                .get(book.getType().toString())
+                                .getDiscountedPrice(book.getPrice(), numberOfBooksInOrder)
+
                 ));
     }
 
