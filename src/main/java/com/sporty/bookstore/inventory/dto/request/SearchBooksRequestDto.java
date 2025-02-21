@@ -1,6 +1,6 @@
 package com.sporty.bookstore.inventory.dto.request;
 
-import com.sporty.bookstore.inventory.dto.annotation.validation.AnyFieldSet;
+import com.sporty.bookstore.annotation.validation.AnyFieldSet;
 import com.sporty.bookstore.inventory.enumeration.BookType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,7 +18,6 @@ import java.util.Collection;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@ParameterObject
 @FieldNameConstants
 @AnyFieldSet(fields = {
         SearchBooksRequestDto.Fields.ids,
@@ -30,6 +29,7 @@ import java.util.Collection;
         SearchBooksRequestDto.Fields.priceFrom,
         SearchBooksRequestDto.Fields.priceTo
 })
+@ParameterObject
 public class SearchBooksRequestDto {
 
     Collection<BigInteger> ids;

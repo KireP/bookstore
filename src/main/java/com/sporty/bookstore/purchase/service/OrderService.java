@@ -6,6 +6,8 @@ import com.sporty.bookstore.inventory.enumeration.BookType;
 import com.sporty.bookstore.inventory.service.BookService;
 import com.sporty.bookstore.purchase.dto.request.BookQuantityRequestDto;
 import com.sporty.bookstore.purchase.dto.request.OrderRequestDto;
+import com.sporty.bookstore.purchase.dto.response.BookOrderDetailsResponseDto;
+import com.sporty.bookstore.purchase.dto.response.DeductedBookResponseDto;
 import com.sporty.bookstore.purchase.dto.response.OrderPaymentResponseDto;
 import com.sporty.bookstore.purchase.dto.response.OrderPriceCalculationResponseDto;
 import com.sporty.bookstore.purchase.service.processor.DiscountProcessor;
@@ -28,27 +30,32 @@ public class OrderService {
 
     @Transactional(readOnly = true)
     public OrderPriceCalculationResponseDto summariseOrder(OrderRequestDto orderRequestDto) {
-        var books = validateAndGetBooksFromOrder(orderRequestDto);
+        var idToBookMap = validateAndGetBooksFromOrder(orderRequestDto);
+        var books = idToBookMap.values();
         var numberOfBooksInOrder = getNumberOfBooksInOrder(orderRequestDto);
         var idToBookPriceMap = calculateBooksPrices(books, numberOfBooksInOrder);
+        var fullPrice = calculateFullPrice(orderRequestDto, idToBookPriceMap);
 
-        var fullPrice = orderRequestDto.getOrder()
-                .stream()
-                .mapToDouble(bookQuantity -> {
-                    double price = idToBookPriceMap.get(bookQuantity.getBookId());
-                    return price * bookQuantity.getQuantity();
-                })
-                .sum();
+        var result = OrderPriceCalculationResponseDto.builder();
 
         var loyaltyPointsApplicable = loyaltyPointsApplicable(books, numberOfBooksInOrder);
+        result.loyaltyPointsToBeApplied(loyaltyPointsApplicable);
+
         if (loyaltyPointsApplicable) {
             var mostExpensiveRegularOrOldEditionBook = getMostExpensiveRegularOrOldEditionBook(books);
             if (mostExpensiveRegularOrOldEditionBook.isPresent()) {
-                fullPrice -= idToBookPriceMap.get(mostExpensiveRegularOrOldEditionBook.get());
+                var freeBook = mostExpensiveRegularOrOldEditionBook.get();
+                var freeBookPrice = idToBookPriceMap.get(freeBook.getId());
+                fullPrice -= freeBookPrice;
+                result.bookToBeDeducted(
+                        new DeductedBookResponseDto(freeBook.getId(), freeBook.getTitle(), freeBookPrice)
+                );
             }
         }
 
-        return new OrderPriceCalculationResponseDto(fullPrice, loyaltyPointsApplicable);
+        return result.priceToPay(fullPrice)
+                .books(getBookOrderDetails(orderRequestDto, idToBookMap, idToBookPriceMap))
+                .build();
     }
 
     @Transactional
@@ -56,29 +63,16 @@ public class OrderService {
         var summarisedOrder = summariseOrder(orderRequestDto);
         var numberOfBooksInOrder = getNumberOfBooksInOrder(orderRequestDto);
 
-        int loyaltyPoints;
-        if (summarisedOrder.getLoyaltyPointsToBeApplied()) {
-            int loyaltyPointsBeforePurchase = loyaltyPointsService.getLoyaltyPointsForLoggedInUser().getPoints();
-            loyaltyPoints = loyaltyPointsService
-                    .applyLoyaltyPointsToLoggedInUser(
-                            loyaltyPointsBeforePurchase + numberOfBooksInOrder - 1 - loyaltyPointsService.retrieveMaxLoyaltyPoints(),
-                            false
-                    )
-                    .getPoints();
-        } else {
-            loyaltyPoints = loyaltyPointsService
-                    .applyLoyaltyPointsToLoggedInUser(numberOfBooksInOrder, true)
-                    .getPoints();
-        }
-
         return new OrderPaymentResponseDto(
                 summarisedOrder.getPriceToPay(),
-                loyaltyPoints,
-                summarisedOrder.getLoyaltyPointsToBeApplied()
+                calculateLoyaltyPointsAfterPurchase(summarisedOrder.getLoyaltyPointsToBeApplied(), numberOfBooksInOrder),
+                summarisedOrder.getLoyaltyPointsToBeApplied(),
+                summarisedOrder.getBookToBeDeducted(),
+                summarisedOrder.getBooks()
         );
     }
 
-    private Collection<Book> validateAndGetBooksFromOrder(OrderRequestDto orderRequestDto) {
+    private Map<BigInteger, Book> validateAndGetBooksFromOrder(OrderRequestDto orderRequestDto) {
         var bookIds = orderRequestDto.getOrder()
                 .stream()
                 .map(BookQuantityRequestDto::getBookId)
@@ -89,7 +83,7 @@ public class OrderService {
         if (!booksMap.keySet().containsAll(bookIds)) {
             throw new BooksCannotBeOrderedException();
         }
-        return booksMap.values();
+        return booksMap;
     }
 
     private int getNumberOfBooksInOrder(OrderRequestDto orderRequestDto) {
@@ -114,6 +108,16 @@ public class OrderService {
                 ));
     }
 
+    private double calculateFullPrice(OrderRequestDto orderRequestDto, Map<BigInteger, Double> idToBookPriceMap) {
+        return orderRequestDto.getOrder()
+                .stream()
+                .mapToDouble(bookQuantity -> {
+                    double price = idToBookPriceMap.get(bookQuantity.getBookId());
+                    return price * bookQuantity.getQuantity();
+                })
+                .sum();
+    }
+
     private boolean loyaltyPointsApplicable(Collection<Book> books, int numberOfBooksInOrder) {
         var currentNumberOfLoyaltyPoints = loyaltyPointsService.getLoyaltyPointsForLoggedInUser().getPoints();
         var maxPointsReached = numberOfBooksInOrder - 1 + currentNumberOfLoyaltyPoints >= loyaltyPointsService.retrieveMaxLoyaltyPoints();
@@ -125,11 +129,46 @@ public class OrderService {
                 .anyMatch(book -> book.getType() == BookType.REGULAR || book.getType() == BookType.OLD_EDITION);
     }
 
-    private Optional<BigInteger> getMostExpensiveRegularOrOldEditionBook(Collection<Book> books) {
+    private Optional<Book> getMostExpensiveRegularOrOldEditionBook(Collection<Book> books) {
         return books
                 .stream()
                 .filter(book -> book.getType() == BookType.REGULAR || book.getType() == BookType.OLD_EDITION)
-                .max(Comparator.comparingDouble(Book::getPrice))
-                .map(Book::getId);
+                .max(Comparator.comparingDouble(Book::getPrice));
+    }
+
+    private List<BookOrderDetailsResponseDto> getBookOrderDetails(OrderRequestDto orderRequestDto,
+                                                                  Map<BigInteger, Book> idToBookMap,
+                                                                  Map<BigInteger, Double> idToBookPriceMap) {
+        return orderRequestDto.getOrder()
+                .stream()
+                .map(bookQuantity -> {
+                    var orderedBook = idToBookMap.get(bookQuantity.getBookId());
+                    return new BookOrderDetailsResponseDto(
+                            bookQuantity.getBookId(),
+                            orderedBook.getTitle(),
+                            orderedBook.getPrice(),
+                            idToBookPriceMap.get(bookQuantity.getBookId()),
+                            bookQuantity.getQuantity()
+                    );
+                })
+                .toList();
+    }
+
+    private int calculateLoyaltyPointsAfterPurchase(boolean loyaltyPointsToBeApplied, int numberOfBooksInOrder) {
+        int loyaltyPoints;
+        if (loyaltyPointsToBeApplied) {
+            int loyaltyPointsBeforePurchase = loyaltyPointsService.getLoyaltyPointsForLoggedInUser().getPoints();
+            loyaltyPoints = loyaltyPointsService
+                    .applyLoyaltyPointsToLoggedInUser(
+                            loyaltyPointsBeforePurchase + numberOfBooksInOrder - 1 - loyaltyPointsService.retrieveMaxLoyaltyPoints(),
+                            false
+                    )
+                    .getPoints();
+        } else {
+            loyaltyPoints = loyaltyPointsService
+                    .applyLoyaltyPointsToLoggedInUser(numberOfBooksInOrder, true)
+                    .getPoints();
+        }
+        return loyaltyPoints;
     }
 }

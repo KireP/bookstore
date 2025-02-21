@@ -1,0 +1,3 @@
+id;username;password;roles
+1;test.admin@sporty.com;$2a$10$MjLFBIsx9xdkenACyj7EWun12EB4ZsOwdvNpLchcevSaDzzbiZkMq;ROLE_ADMIN
+2;test.user@sporty.com;$2a$10$MjLFBIsx9xdkenACyj7EWun12EB4ZsOwdvNpLchcevSaDzzbiZkMq;ROLE_USER

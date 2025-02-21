@@ -13,10 +13,16 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface UserMapper {
 
+    @Mapping(target = "roles", source = "newUserRequestDto.roles", qualifiedByName = "concatenateRoles")
     UserInfo toUserInfo(NewUserRequestDto newUserRequestDto);
 
     @Mapping(target = "roles", source = "userInfo.roles", qualifiedByName = "getRoles")
     UserInfoResponseDto toUserInfoResponseDto(UserInfo userInfo);
+
+    @Named("concatenateRoles")
+    default String concatenateRoles(List<String> roles) {
+        return String.join(",", roles);
+    }
 
     @Named("getRoles")
     default List<String> getRoles(String roles) {

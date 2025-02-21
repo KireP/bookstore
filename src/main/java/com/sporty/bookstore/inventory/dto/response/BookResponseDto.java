@@ -1,6 +1,6 @@
 package com.sporty.bookstore.inventory.dto.response;
 
-import com.sporty.bookstore.inventory.dto.annotation.SortBy;
+import com.sporty.bookstore.annotation.api.SortBy;
 import com.sporty.bookstore.inventory.enumeration.BookType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

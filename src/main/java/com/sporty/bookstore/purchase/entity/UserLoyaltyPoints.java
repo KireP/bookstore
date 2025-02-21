@@ -2,8 +2,7 @@ package com.sporty.bookstore.purchase.entity;
 
 import com.sporty.bookstore.user.entity.UserInfo;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.math.BigInteger;
 
@@ -11,6 +10,9 @@ import java.math.BigInteger;
 @Table(name = "user_loyalty_points")
 @Setter
 @Getter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @SequenceGenerator(
         name = "user_loyalty_points_sequence_generator",
         sequenceName = "user_loyalty_points_sequence",

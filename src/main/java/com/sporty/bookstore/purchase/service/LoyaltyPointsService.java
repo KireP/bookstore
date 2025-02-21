@@ -45,9 +45,9 @@ public class LoyaltyPointsService {
                     return userPointsToCreate;
                 });
         if (add) {
-            userPoints.setLoyaltyPoints(Math.max(maxLoyaltyPoints, userPoints.getLoyaltyPoints() + loyaltyPoints));
+            userPoints.setLoyaltyPoints(Math.min(maxLoyaltyPoints, userPoints.getLoyaltyPoints() + loyaltyPoints));
         } else {
-            userPoints.setLoyaltyPoints(Math.max(maxLoyaltyPoints, loyaltyPoints));
+            userPoints.setLoyaltyPoints(Math.min(maxLoyaltyPoints, loyaltyPoints));
         }
         userPoints = userLoyaltyPointsRepository.save(userPoints);
         return new LoyaltyPointsResponseDto(userPoints.getLoyaltyPoints());

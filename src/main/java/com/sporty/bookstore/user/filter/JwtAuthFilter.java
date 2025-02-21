@@ -1,7 +1,6 @@
 package com.sporty.bookstore.user.filter;
 
 import com.sporty.bookstore.user.service.JwtService;
-import com.sporty.bookstore.user.service.UserInfoService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -11,6 +10,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -26,7 +26,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     private static final String BEARER_TOKEN_PREFIX = "Bearer ";
 
     private final JwtService jwtService;
-    private final UserInfoService userInfoService;
+    private final UserDetailsService userDetailsService;
 
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request,
@@ -39,7 +39,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         try {
             var username = token.map(jwtService::extractUsername);
             if (username.isPresent() && Objects.isNull(SecurityContextHolder.getContext().getAuthentication())) {
-                var userDetails = userInfoService.loadUserByUsername(username.get());
+                var userDetails = userDetailsService.loadUserByUsername(username.get());
                 if (jwtService.validateToken(token.get(), userDetails)) {
                     var authToken = new UsernamePasswordAuthenticationToken(
                             userDetails,

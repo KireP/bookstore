@@ -1,4 +1,4 @@
-package com.sporty.bookstore.inventory.dto.annotation;
+package com.sporty.bookstore.annotation.api;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

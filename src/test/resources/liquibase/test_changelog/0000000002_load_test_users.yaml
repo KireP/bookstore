@@ -1,0 +1,28 @@
+databaseChangeLog:
+  - changeSet:
+      id: load_test_users
+      author: Kiril Pepovski
+      runOnChange: true
+      changes:
+        - loadUpdateData:
+            columns:
+              - column:
+                  name: id
+                  type: numeric
+              - column:
+                  name: username
+                  type: varchar(50)
+              - column:
+                  name: password
+                  type: varchar(150)
+              - column:
+                  name: roles
+                  type: varchar(150)
+            commentLineStartsWith: //
+            encoding: UTF-8
+            file: test_data/00001_test_users.txt
+            primaryKey: id
+            relativeToChangelogFile: true
+            separator: ;
+            tableName: users
+            usePreparedStatements: true

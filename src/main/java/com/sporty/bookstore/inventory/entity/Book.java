@@ -2,8 +2,7 @@ package com.sporty.bookstore.inventory.entity;
 
 import com.sporty.bookstore.inventory.enumeration.BookType;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.FieldNameConstants;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -12,16 +11,19 @@ import java.math.BigInteger;
 import java.time.LocalDateTime;
 
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 @Table(name = "books")
 @Setter
 @Getter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @FieldNameConstants
 @SequenceGenerator(
         name = "books_sequence_generator",
         sequenceName = "books_sequence",
         allocationSize = 1
 )
-@EntityListeners(AuditingEntityListener.class)
 public class Book {
 
     @Id

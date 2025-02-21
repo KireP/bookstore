@@ -1,8 +1,8 @@
 package com.sporty.bookstore.inventory.service;
 
+import com.sporty.bookstore.annotation.api.SortBy;
 import com.sporty.bookstore.exception.BookCannotBeDeletedException;
 import com.sporty.bookstore.exception.BookNotFoundException;
-import com.sporty.bookstore.inventory.dto.annotation.SortBy;
 import com.sporty.bookstore.inventory.dto.request.CreateBookRequestDto;
 import com.sporty.bookstore.inventory.dto.request.SearchBooksRequestDto;
 import com.sporty.bookstore.inventory.dto.request.UpdateBookRequestDto;

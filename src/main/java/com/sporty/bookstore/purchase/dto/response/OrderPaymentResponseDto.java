@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -14,4 +16,6 @@ public class OrderPaymentResponseDto {
     private Double pricePaid;
     private Integer loyaltyPointsAfterPurchase;
     private Boolean loyaltyPointsApplied;
+    private DeductedBookResponseDto deductedBook;
+    private List<BookOrderDetailsResponseDto> books;
 }
