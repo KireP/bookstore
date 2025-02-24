@@ -42,7 +42,7 @@ public class OrderService {
         result.loyaltyPointsToBeApplied(loyaltyPointsApplicable);
 
         if (loyaltyPointsApplicable) {
-            var mostExpensiveRegularOrOldEditionBook = getMostExpensiveRegularOrOldEditionBook(books);
+            var mostExpensiveRegularOrOldEditionBook = getMostExpensiveRegularOrOldEditionBook(books, numberOfBooksInOrder);
             if (mostExpensiveRegularOrOldEditionBook.isPresent()) {
                 var freeBook = mostExpensiveRegularOrOldEditionBook.get();
                 var freeBookPrice = idToBookPriceMap.get(freeBook.getId());
@@ -126,11 +126,15 @@ public class OrderService {
                 .anyMatch(book -> book.getType() == BookType.REGULAR || book.getType() == BookType.OLD_EDITION);
     }
 
-    private Optional<Book> getMostExpensiveRegularOrOldEditionBook(Collection<Book> books) {
+    private Optional<Book> getMostExpensiveRegularOrOldEditionBook(Collection<Book> books, int numberOfBooksInOrder) {
         return books
                 .stream()
                 .filter(book -> book.getType() == BookType.REGULAR || book.getType() == BookType.OLD_EDITION)
-                .max(Comparator.comparingDouble(Book::getPrice));
+                .max(Comparator.comparingDouble(
+                        book -> discountProcessorFactory
+                                .get(book.getType().toString())
+                                .getDiscountedPrice(book.getPrice(), numberOfBooksInOrder)
+                ));
     }
 
     private List<BookOrderDetailsResponseDto> getBookOrderDetails(OrderRequestDto orderRequestDto,
